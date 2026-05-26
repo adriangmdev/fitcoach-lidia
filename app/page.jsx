@@ -556,11 +556,14 @@ function Chat() {
     try { const s=localStorage.getItem(STORAGE_KEY); return s?JSON.parse(s):null; } catch { return null; }
   };
   const [msgs, setMsgs] = useState(() => loadMsgs() || [
-    { r:"b", t:"¡Aloha Lidia! 🌺 Soy tu coach de fitness y nutrición.\n\nConozco tu nuevo objetivo: llegar a 70kg de masa muscular con la menor grasa posible. Pregúntame lo que necesites: alimentación, técnica, suplementos... ¡Vamos a por ello! 💪" }
+    { r:"b", t:"¡Aloha Lidia! 🌺 Soy tu coach de fitness y nutrición.\n\nConozco tu nuevo objetivo: llegar a 70kg de masa muscular con la menor grasa posible. Pregúntame lo que necesites o mándame una foto de tu comida para analizar las macros 📸💪" }
   ]);
   const [inp, setInp] = useState("");
   const [busy, setBusy] = useState(false);
+  const [preview, setPreview] = useState(null);
+  const [pendingImg, setPendingImg] = useState(null);
   const end = useRef(null);
+  const camRef = useRef(null);
 
   useEffect(() => { end.current?.scrollIntoView({ behavior:"smooth" }); }, [msgs, busy]);
 
@@ -569,23 +572,76 @@ function Chat() {
   };
 
   const clearChat = () => {
-    const initial=[{ r:"b", t:"¡Aloha Lidia! 🌺 Soy tu coach de fitness y nutrición.\n\nConozco tu nuevo objetivo: llegar a 70kg de masa muscular con la menor grasa posible. Pregúntame lo que necesites: alimentación, técnica, suplementos... ¡Vamos a por ello! 💪" }];
+    const initial=[{ r:"b", t:"¡Aloha Lidia! 🌺 Soy tu coach de fitness y nutrición.\n\nConozco tu nuevo objetivo: llegar a 70kg de masa muscular con la menor grasa posible. Pregúntame lo que necesites o mándame una foto de tu comida para analizar las macros 📸💪" }];
     setMsgs(initial); localStorage.removeItem(STORAGE_KEY);
+    setPreview(null); setPendingImg(null);
+  };
+
+  const handlePhoto = async (file) => {
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    setPreview(url);
+    const b64 = await shrink(file);
+    setPendingImg(b64);
+  };
+
+  const removePhoto = () => {
+    setPreview(null);
+    setPendingImg(null);
+    if (camRef.current) camRef.current.value = "";
   };
 
   const send = async () => {
-    if(!inp.trim()||busy) return;
-    const txt=inp.trim(); setInp("");
-    const updated=[...msgs,{r:"u",t:txt}]; setMsgs(updated); saveMsgs(updated); setBusy(true);
+    if ((!inp.trim() && !pendingImg) || busy) return;
+    const txt = inp.trim();
+    setInp("");
+
+    let userMsgContent;
+    let userMsgDisplay;
+
+    if (pendingImg) {
+      userMsgContent = [
+        { type: "image", source: { type: "base64", media_type: "image/jpeg", data: pendingImg } },
+        { type: "text", text: txt || "Analiza esta comida: dime qué es, las macros completas (calorías, proteína, carbohidratos, grasa) y si encaja con mi objetivo de ganar masa muscular." }
+      ];
+      userMsgDisplay = { r:"u", t: txt || "📸 Foto enviada — analiza las macros", img: preview };
+    } else {
+      userMsgContent = txt;
+      userMsgDisplay = { r:"u", t: txt };
+    }
+
+    setPreview(null);
+    setPendingImg(null);
+    if (camRef.current) camRef.current.value = "";
+
+    const updated = [...msgs, userMsgDisplay];
+    setMsgs(updated);
+    saveMsgs(updated);
+    setBusy(true);
+
     try {
-      const conv=updated.slice(1);
-      const apiMsgs=conv.map(m=>({role:m.r==="u"?"user":"assistant",content:m.t}));
-      const r=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:apiMsgs})});
-      const data=await r.json();
-      if(data.error) throw new Error(data.error);
-      const final=[...updated,{r:"b",t:data.text}];
-      setMsgs(final); saveMsgs(final);
-    } catch(e){ setMsgs(prev=>[...prev,{r:"e",t:String(e.message||e)}]); }
+      const conv = updated.slice(1);
+      const apiMsgs = conv.map(m => ({
+        role: m.r === "u" ? "user" : "assistant",
+        content: m.img
+          ? [{ type:"image", source:{ type:"base64", media_type:"image/jpeg", data:pendingImg||"" } }, { type:"text", text: m.t }]
+          : m.t
+      }));
+      apiMsgs[apiMsgs.length-1].content = userMsgContent;
+
+      const r = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: apiMsgs })
+      });
+      const data = await r.json();
+      if (data.error) throw new Error(data.error);
+      const final = [...updated, { r:"b", t:data.text }];
+      setMsgs(final);
+      saveMsgs(final);
+    } catch(e) {
+      setMsgs(prev => [...prev, { r:"e", t:String(e.message||e) }]);
+    }
     setBusy(false);
   };
 
@@ -597,18 +653,34 @@ function Chat() {
           <Trash2 size={13}/> Borrar
         </button>
       </div>
+
       <div style={{ flex:1, overflowY:"auto", display:"flex", flexDirection:"column", gap:10, paddingBottom:8 }}>
-        {msgs.map((m,i)=>(
+        {msgs.map((m,i) => (
           <div key={i} className={`ms ${m.r==="u"?"u":m.r==="e"?"e":"b"}`}>
-            {m.t.split("\n").map((l,j)=><span key={j}>{l}<br/></span>)}
+            {m.img && <img src={m.img} alt="" style={{ width:"100%", maxWidth:200, borderRadius:10, marginBottom:6, display:"block" }}/>}
+            {m.t.split("\n").map((l,j) => <span key={j}>{l}<br/></span>)}
           </div>
         ))}
         {busy && <div className="ms b"><div className="td"><span/><span/><span/></div></div>}
         <div ref={end}/>
       </div>
+
+      {preview && (
+        <div style={{ position:"relative", display:"inline-block", marginBottom:8, flexShrink:0 }}>
+          <img src={preview} alt="" style={{ height:64, borderRadius:10, border:"2px solid rgba(255,107,107,.4)" }}/>
+          <button onClick={removePhoto} style={{ position:"absolute", top:-6, right:-6, background:"#ff6b6b", border:"none", borderRadius:"50%", width:20, height:20, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
+            <X size={12} color="#fff"/>
+          </button>
+        </div>
+      )}
+
       <div className="ci" style={{ flexShrink:0 }}>
-        <input type="text" placeholder="Pregúntame... 🌺" value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()}/>
-        <button className="sn" onClick={send} disabled={!inp.trim()||busy}><Send size={18}/></button>
+        <input type="file" ref={camRef} accept="image/*" capture="environment" style={{ display:"none" }} onChange={e => handlePhoto(e.target.files?.[0])}/>
+        <button onClick={() => camRef.current?.click()} style={{ width:48, height:48, borderRadius:16, border:"1px solid rgba(255,255,255,.08)", background:"rgba(255,255,255,.04)", color:"#7a8ba8", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+          <Camera size={20}/>
+        </button>
+        <input type="text" placeholder={pendingImg ? "Añade un comentario... (opcional)" : "Pregúntame... 🌺"} value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()}/>
+        <button className="sn" onClick={send} disabled={(!inp.trim()&&!pendingImg)||busy}><Send size={18}/></button>
       </div>
     </div>
   );
