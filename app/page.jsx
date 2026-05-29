@@ -23,8 +23,8 @@ const DEFAULT_MEALS = [
   { label: "Martes", meals: [
     { time: "🌅 Desayuno", desc: "Batido: 250ml leche soja 0% + 30g whey + 5g creatina + 10g colágeno.", cal: 280, prot: 35, carbs: 15, fat: 5 },
     { time: "☕ Almuerzo", desc: "Café con leche soja + mini bocata jamón dulce y queso.", cal: 280, prot: 14, carbs: 30, fat: 10 },
-    { time: "🌴 Comida", desc: "Ternera magra con verduras wok + quinoa abundante.", cal: 650, prot: 44, carbs: 65, fat: 18 },
-    { time: "🌊 Merienda", desc: "2 tostadas integrales con crema cacahuete + plátano + vaso leche soja.", cal: 450, prot: 20, carbs: 55, fat: 18 },
+    { time: "🌴 Comida", desc: "Ternera magra con verduras wok + arroz basmati abundante.", cal: 650, prot: 44, carbs: 65, fat: 18 },
+    { time: "🌊 Merienda", desc: "2 tostadas integrales con hummus + plátano + vaso leche soja.", cal: 450, prot: 20, carbs: 55, fat: 18 },
     { time: "🌙 Cena", desc: "Tortilla 3 huevos con queso fresco y espinacas. Pan integral. Ensalada.", cal: 520, prot: 34, carbs: 30, fat: 24 },
   ]},
   { label: "Miércoles", meals: [
@@ -39,12 +39,12 @@ const DEFAULT_MEALS = [
     { time: "☕ Almuerzo", desc: "Café con leche soja + mini bocata jamón dulce y queso.", cal: 280, prot: 14, carbs: 30, fat: 10 },
     { time: "🌴 Comida", desc: "Lentejas estofadas con verduras + arroz abundante + pan.", cal: 680, prot: 32, carbs: 90, fat: 14 },
     { time: "🌊 Merienda", desc: "Yogur griego con granola, kiwi + tostada con aguacate.", cal: 420, prot: 22, carbs: 48, fat: 16 },
-    { time: "🌙 Cena", desc: "2 wraps integrales con pollo, aguacate y tomate.", cal: 580, prot: 40, carbs: 50, fat: 24 },
+    { time: "🌙 Cena", desc: "2 wraps de trigo con pollo, aguacate y tomate.", cal: 580, prot: 40, carbs: 50, fat: 24 },
   ]},
   { label: "Viernes", meals: [
     { time: "🌅 Desayuno", desc: "Batido: 250ml leche soja 0% + 30g whey + 5g creatina + 10g colágeno.", cal: 280, prot: 35, carbs: 15, fat: 5 },
     { time: "☕ Almuerzo", desc: "Café con leche soja + mini bocata jamón dulce y queso.", cal: 280, prot: 14, carbs: 30, fat: 10 },
-    { time: "🌴 Comida", desc: "Pasta integral abundante con pollo troceado, tomate y parmesano.", cal: 700, prot: 44, carbs: 80, fat: 18 },
+    { time: "🌴 Comida", desc: "Pasta normal abundante con pollo troceado, tomate y parmesano.", cal: 700, prot: 44, carbs: 80, fat: 18 },
     { time: "🌊 Merienda", desc: "Hummus con bastones zanahoria + tostadas integrales + fruta.", cal: 400, prot: 16, carbs: 48, fat: 16 },
     { time: "🌙 Cena", desc: "Ensalada completa: lechugas, 2 huevos duros, pollo, maíz, aguacate.", cal: 520, prot: 36, carbs: 30, fat: 24 },
   ]},
@@ -53,7 +53,7 @@ const DEFAULT_MEALS = [
     { time: "☕ Almuerzo", desc: "Café con leche soja + mini bocata jamón dulce y queso.", cal: 280, prot: 14, carbs: 30, fat: 10 },
     { time: "🌴 Comida", desc: "Pechuga de pollo al horno con patatas asadas y verduras salteadas.", cal: 680, prot: 42, carbs: 75, fat: 18 },
     { time: "🌊 Merienda", desc: "2 tostadas integrales con aguacate y huevo. Fruta.", cal: 440, prot: 20, carbs: 40, fat: 22 },
-    { time: "🌙 Cena", desc: "Pizza casera integral grande con pavo, champiñones y mozzarella.", cal: 560, prot: 36, carbs: 50, fat: 22 },
+    { time: "🌙 Cena", desc: "Pizza casera grande con pavo, champiñones y mozzarella.", cal: 560, prot: 36, carbs: 50, fat: 22 },
   ]},
   { label: "Domingo", meals: [
     { time: "🌅 Desayuno", desc: "Batido: 250ml leche soja 0% + 30g whey + 5g creatina + 10g colágeno.", cal: 280, prot: 35, carbs: 15, fat: 5 },
