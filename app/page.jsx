@@ -389,7 +389,14 @@ function Food() {
       const r=await fetch("/api/estimate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({meal:editText.trim()})});
       const data=await r.json();
       const key=`${editing.dayIdx}-${editing.mealIdx}`;
-      const newEdits={...mealEdits,[key]:{desc:editText.trim(),cal:data.calorias||0,prot:data.proteinas||0,carbs:data.carbohidratos||0,fat:data.grasas||0}};
+      const orig=DEFAULT_MEALS[editing.dayIdx].meals[editing.mealIdx];
+      const newEdits={...mealEdits,[key]:{
+        desc:editText.trim(),
+        cal:data.calorias>0?data.calorias:orig.cal,
+        prot:data.proteinas>0?data.proteinas:orig.prot,
+        carbs:data.carbohidratos>0?data.carbohidratos:orig.carbs,
+        fat:data.grasas>0?data.grasas:orig.fat
+      }};
       setMealEdits(newEdits); saveMealEdits(newEdits);
     } catch(e){ console.error(e); }
     setEstimating(false); setEditing(null); setEditText("");
