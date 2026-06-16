@@ -347,9 +347,19 @@ function Food() {
     setLog(updated); saveLog(updated);
   };
 
-  const getMeal = (dayIdx, mealIdx) => {
+ const getMeal = (dayIdx, mealIdx) => {
     const key=`${dayIdx}-${mealIdx}`, edit=mealEdits[key], orig=DEFAULT_MEALS[dayIdx].meals[mealIdx];
-    if(edit && (edit.cal > 0 || edit.prot > 0)) return { ...orig, desc:edit.desc, cal:edit.cal, prot:edit.prot, carbs:edit.carbs, fat:edit.fat, edited:true };
+    if(edit && edit.desc) {
+      return {
+        ...orig,
+        desc: edit.desc,
+        cal: edit.cal > 0 ? edit.cal : orig.cal,
+        prot: edit.prot > 0 ? edit.prot : orig.prot,
+        carbs: edit.carbs > 0 ? edit.carbs : orig.carbs,
+        fat: edit.fat > 0 ? edit.fat : orig.fat,
+        edited: true
+      };
+    }
     return { ...orig, edited:false };
   };
 
