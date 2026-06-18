@@ -20,7 +20,7 @@ export async function POST(req) {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "claude-sonnet-4-6",
         max_tokens: 500,
         messages: [{ role: "user", content: `Estima los macronutrientes de esta comida: "${meal}". Responde UNICAMENTE con JSON valido sin backticks ni texto extra: {"calorias":numero,"proteinas":numero,"carbohidratos":numero,"grasas":numero}. Estima cantidades razonables para una porcion normal de una mujer adulta.` }]
       }),
@@ -31,5 +31,5 @@ export async function POST(req) {
     const match = txt.match(/\{[\s\S]*?\}/);
     if (match) { try { return NextResponse.json(JSON.parse(match[0])); } catch {} }
     return NextResponse.json({ calorias: 0, proteinas: 0, carbohidratos: 0, grasas: 0 });
-  } catch (e) { return NextResponse.json({ error: e.message }, { status: 500 }); }
+  } catch (e) { return NextResponse.json({ error: "Error: " + String(e.message || e) }, { status: 500 }); }
 }
